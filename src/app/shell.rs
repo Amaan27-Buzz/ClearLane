@@ -314,7 +314,9 @@ impl ClearLaneShell {
                                 .corner_radius(7)
                                 .frame_when_inactive(false),
                             )
-                            .on_hover_text("Preview only — Shields is not filtering network traffic yet")
+                            .on_hover_text(
+                                "Preview only — Shields is not filtering network traffic yet",
+                            )
                             .clicked()
                             && let Some(id) = self.browser.active_id()
                         {
