@@ -48,7 +48,7 @@ wrap_window_delegate! {
 }
 
 wrap_browser_view_delegate! {
-    struct ProofBrowserViewDelegate;
+    struct ProofBrowserViewDelegate {}
 
     impl ViewDelegate {}
 
@@ -60,7 +60,7 @@ wrap_browser_view_delegate! {
 }
 
 wrap_client! {
-    struct ProofClient;
+    struct ProofClient {}
 
     impl Client {
         fn display_handler(&self) -> Option<DisplayHandler> {
@@ -73,7 +73,7 @@ wrap_client! {
 }
 
 wrap_display_handler! {
-    struct ProofDisplayHandler;
+    struct ProofDisplayHandler {}
 
     impl DisplayHandler {
         fn on_title_change(&self, browser: Option<&mut Browser>, title: Option<&CefString>) {
@@ -87,7 +87,7 @@ wrap_display_handler! {
 }
 
 wrap_life_span_handler! {
-    struct ProofLifeSpanHandler;
+    struct ProofLifeSpanHandler {}
 
     impl LifeSpanHandler {
         fn on_before_close(&self, _browser: Option<&mut Browser>) {
