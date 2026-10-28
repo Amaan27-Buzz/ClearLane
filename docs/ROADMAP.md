@@ -10,8 +10,13 @@
 - [x] Agent instructions recorded
 - [x] Slice 1 produced a runnable Windows experiment
 - [x] Slice 1 manual gate failed on UI quality, Shields effectiveness, and memory efficiency
-- [ ] Slice 1.5 corrective reset implemented
-- [ ] Slice 1.5 manual Windows gate passed
+- [x] Gate A shell prototype committed on `slice-1-5-browser-alpha-reset`
+- [x] Gate A Windows compile/test CI succeeded on the new repository (2026-10-28)
+- [ ] Gate A visually approved by user on Windows
+- [ ] Gate B Chromium/CEF embedded rendering proven
+- [ ] Gate C Shields proven on representative real sites
+- [ ] Gate D tab lifecycle and fair competitor benchmarks proven
+- [ ] Slice 1.5 full manual Windows gate passed
 
 ClearLane still uses a small number of substantial implementation slices. **Slice 1.5 is a corrective reset, not permission to fragment the project into many mini-slices.**
 
