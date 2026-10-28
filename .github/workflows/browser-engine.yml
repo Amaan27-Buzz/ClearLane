@@ -1,0 +1,49 @@
+name: Chromium Engine Proof
+
+on:
+  push:
+    branches: [feat/chromium-browser-foundation]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: engine -> target
+      - name: Format
+        run: cargo fmt --manifest-path engine/Cargo.toml --all -- --check
+      - name: Clippy
+        run: cargo clippy --manifest-path engine/Cargo.toml --all-targets --all-features -- -D warnings
+      - name: Test
+        run: cargo test --manifest-path engine/Cargo.toml --all-features
+      - name: Create sandboxed Windows CEF bundle
+        shell: pwsh
+        run: |
+          cargo install cef --version 156.2.0 --features build-util --bin bundle-cef-app --locked
+          Push-Location engine
+          try {
+            bundle-cef-app clearlane-engine --release --output "../target/engine-proof"
+          }
+          finally { Pop-Location }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clearlane-cef-engine-proof
+          path: target/engine-proof
+          if-no-files-found: error
