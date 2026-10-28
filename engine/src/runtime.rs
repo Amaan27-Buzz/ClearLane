@@ -183,7 +183,13 @@ pub fn run_main(
         ..Default::default()
     };
     let mut app = ProofApp::new(start_url());
-    if initialize(Some(main_args), Some(&settings), Some(&mut app), sandbox_info) != 1 {
+    if initialize(
+        Some(main_args),
+        Some(&settings),
+        Some(&mut app),
+        sandbox_info,
+    ) != 1
+    {
         return Err("cef_initialize failed".into());
     }
     run_message_loop();
