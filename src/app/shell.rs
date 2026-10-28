@@ -23,19 +23,15 @@ impl ClearLaneShell {
         let mut browser = BrowserState::default();
         let home = browser.open_tab("https://clearlane.app/");
         browser.update_title(home, "ClearLane");
-        browser.set_blocked_count(home, 7);
 
         let rust = browser.open_tab("https://www.rust-lang.org/");
         browser.update_title(rust, "Rust");
-        browser.set_blocked_count(rust, 3);
 
         let mdn = browser.open_tab("https://developer.mozilla.org/");
         browser.update_title(mdn, "MDN Web Docs");
-        browser.set_blocked_count(mdn, 18);
 
         let notes = browser.open_tab("https://example.com/browser-ui-notes");
         browser.update_title(notes, "Browser UI notes");
-        browser.set_blocked_count(notes, 2);
 
         browser.activate(home);
 
@@ -318,7 +314,7 @@ impl ClearLaneShell {
                                 .corner_radius(7)
                                 .frame_when_inactive(false),
                             )
-                            .on_hover_text("Shields protection")
+                            .on_hover_text("Preview only — Shields is not filtering network traffic yet")
                             .clicked()
                             && let Some(id) = self.browser.active_id()
                         {
