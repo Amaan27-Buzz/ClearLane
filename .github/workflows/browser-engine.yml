@@ -39,7 +39,7 @@ jobs:
           cargo install cef --version 156.2.0 --features build-util --bin bundle-cef-app --locked
           Push-Location engine
           try {
-            bundle-cef-app clearlane-engine --release --output "../target/engine-proof"
+            bundle-cef-app clearlane_engine --release --output "../target/engine-proof"
           }
           finally { Pop-Location }
       - uses: actions/upload-artifact@v4

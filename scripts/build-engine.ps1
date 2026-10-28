@@ -9,8 +9,8 @@ try {
     if (-not (Get-Command bundle-cef-app -ErrorAction SilentlyContinue)) {
         cargo install cef --version 156.2.0 --features build-util --bin bundle-cef-app --locked
     }
-    bundle-cef-app clearlane-engine --release --output "..\target\engine-proof"
-    Write-Host "Run: $root\target\engine-proof\clearlane-engine.exe"
+    bundle-cef-app clearlane_engine --release --output "..\target\engine-proof"
+    Write-Host "Run: $root\target\engine-proof\clearlane_engine.exe"
 }
 finally {
     Pop-Location

@@ -11,7 +11,7 @@ fn main() -> Result<(), String> {
 #[cfg(all(target_os = "windows", feature = "sandbox"))]
 fn main() {
     eprintln!(
-        "Use the bundled clearlane-engine.exe produced by scripts/build-engine.ps1 (sandbox bootstrap)."
+        "Use the bundled clearlane_engine.exe produced by scripts/build-engine.ps1 (sandbox bootstrap)."
     );
     std::process::exit(1);
 }

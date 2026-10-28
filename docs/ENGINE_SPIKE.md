@@ -35,7 +35,7 @@ git fetch origin
 git switch feat/chromium-browser-foundation
 git pull --ff-only
 powershell -ExecutionPolicy Bypass -File .\scripts\build-engine.ps1
-.\target\engine-proof\clearlane-engine.exe --url=https://example.com/
+.\target\engine-proof\clearlane_engine.exe --url=https://example.com/
 ```
 
 The CEF bundle utility downloads/packages significant Chromium binaries; initial setup can be large. Alternatively download the `clearlane-cef-engine-proof` CI artifact.
