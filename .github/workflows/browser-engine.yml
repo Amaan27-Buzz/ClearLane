@@ -1,0 +1,82 @@
+name: Chromium Engine Proof
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    # cef-dll-sys and the separately installed bundle-cef-app must use the same
+    # CEF distribution. Otherwise get_cef_dir() is None in the bundler.
+    env:
+      CEF_PATH: ${{ github.workspace }}/cef_cache
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: engine -> target
+      - name: Validate local Windows build script syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "scripts/build-engine.ps1").Path,
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.ToString() }
+            throw "Invalid PowerShell build helper"
+          }
+      - name: Format
+        run: cargo fmt --manifest-path engine/Cargo.toml --all -- --check
+      - name: Clippy
+        run: cargo clippy --manifest-path engine/Cargo.toml --all-targets --all-features -- -D warnings
+      - name: Test
+        run: cargo test --manifest-path engine/Cargo.toml --all-features
+      - name: Verify shared CEF distribution
+        shell: pwsh
+        run: |
+          $binary = Join-Path $env:CEF_PATH "156.0.14/cef_windows_x86_64/libcef.dll"
+          if (-not (Test-Path -LiteralPath $binary)) {
+            throw "Missing CEF binary at $binary. cef-dll-sys and bundler must share CEF_PATH."
+          }
+      - name: Create sandboxed Windows CEF bundle
+        shell: pwsh
+        run: |
+          cargo install cef --version 156.2.0 --features build-util --bin bundle-cef-app --locked
+          Push-Location engine
+          try {
+            bundle-cef-app clearlane_engine --release --output "../target/engine-proof"
+          }
+          finally { Pop-Location }
+          $bundle = Join-Path "target/engine-proof" "clearlane_engine.exe"
+          if (-not (Test-Path -LiteralPath $bundle)) {
+            throw "The CEF sandbox bootstrap executable was not bundled: $bundle"
+          }
+          $dll = Join-Path "target/engine-proof" "clearlane_engine.dll"
+          if (-not (Test-Path -LiteralPath $dll)) {
+            throw "The ClearLane CEF entrypoint DLL was not bundled: $dll"
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clearlane-cef-engine-proof
+          path: target/engine-proof
+          if-no-files-found: error
