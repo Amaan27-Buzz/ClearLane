@@ -20,7 +20,7 @@ jobs:
     # cef-dll-sys and the separately installed bundle-cef-app must use the same
     # CEF distribution. Otherwise get_cef_dir() is None in the bundler.
     env:
-      CEF_PATH: ${{ runner.temp }}/clearlane-cef
+      CEF_PATH: ${{ github.workspace }}/cef_cache
     steps:
       - uses: actions/checkout@v4
         with:
