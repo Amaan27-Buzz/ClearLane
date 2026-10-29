@@ -31,6 +31,20 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: engine -> target
+      - name: Validate local Windows build script syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "scripts/build-engine.ps1").Path,
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.ToString() }
+            throw "Invalid PowerShell build helper"
+          }
       - name: Format
         run: cargo fmt --manifest-path engine/Cargo.toml --all -- --check
       - name: Clippy

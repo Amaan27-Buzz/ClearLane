@@ -39,6 +39,16 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-engine.ps1
 .\target\engine-proof\clearlane_engine.exe --url=https://example.com/
 ```
 
+### Windows local build path fix (MSVC C1083)
+
+If CEF fails with `fatal error C1083: Cannot open compiler generated file: '': Invalid argument`, the checkout path may be too deeply nested for MSVC/CMake's generated object files. The user-reported path under `D:\\Programming\\...\\ClearLane\\engine\\target\\release\\build\\...` exceeded the traditional 260-character path limit for some generated objects.
+
+`scripts/build-engine.ps1` now sets a short `CARGO_TARGET_DIR` automatically (for example, `D:\\clearlane-build`). Keep the project in its existing directory; **do not move it, delete the downloaded CEF SDK, enable unsafe browser flags, or change the Windows registry**.
+
+If you already set `CARGO_TARGET_DIR`, use a similarly short location or clear that environment variable for this shell. The script prints the chosen path before compiling. The finished bundle remains at `target/engine-proof/clearlane_engine.exe` inside the repository. The helper also checks native-command exit codes immediately, so an unsuccessful CEF compile cannot be mistaken for a runnable bundle.
+
+If C1083 still occurs **after the short-path fix**, capture the first failing object path and full compiler error. Investigate MSVC parallel compilation, antivirus/file locks and temporary directories as separate hypotheses rather than arbitrarily editing CEF flags.
+
 The PowerShell script defaults `CEF_PATH` to `%LOCALAPPDATA%/ClearLane/cef-sdk` (override with your own `CEF_PATH`). The first Rust compile downloads the matching CEF distribution; the separately installed bundle tool reuses exactly that distribution. First setup can be large. Do not remove or overwrite this cache while the build runs. Alternatively download the `clearlane-cef-engine-proof` CI artifact.
 
 No competitive speed or memory claims are made from this proof.
