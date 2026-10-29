@@ -50,11 +50,6 @@ try {
         }
     }
 
-    $cefBinary = Join-Path $env:CEF_PATH "156.0.14/cef_windows_x86_64/libcef.dll"
-    if (-not (Test-Path -LiteralPath $cefBinary)) {
-        throw "CEF SDK binary missing after Cargo build: $cefBinary"
-    }
-
     # Upstream provides the Windows sandbox bootstrap; this is not an
     # unsandboxed cargo-run executable.
     if (-not (Get-Command bundle-cef-app -ErrorAction SilentlyContinue)) {
@@ -67,6 +62,11 @@ try {
     bundle-cef-app clearlane_engine --release --output $bundleDir
     if ($LASTEXITCODE -ne 0) {
         throw "CEF native compilation/bundling failed (exit $LASTEXITCODE). Read the FIRST compiler error above; no executable is ready."
+    }
+
+    $cefBinary = Join-Path $env:CEF_PATH "156.0.14/cef_windows_x86_64/libcef.dll"
+    if (-not (Test-Path -LiteralPath $cefBinary)) {
+        throw "CEF distribution is missing after build: $cefBinary"
     }
 
     if (-not (Test-Path -LiteralPath $exe) -or -not (Test-Path -LiteralPath $dll)) {
