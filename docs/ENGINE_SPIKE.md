@@ -15,6 +15,7 @@ This proof intentionally has **no fabricated tabs, navigation toolbar or ad coun
 ## Research (October 2026)
 - CEF API 156: https://docs.rs/crate/cef/156.2.0+156.0.14
 - cef-rs and official bundle tool: https://github.com/tauri-apps/cef-rs
+- `cef-dll-sys::get_cef_dir()` uses `CEF_PATH` or the build script's `OUT_DIR`. Installing `bundle-cef-app` separately gives it a different `OUT_DIR`; set a shared versioned `CEF_PATH` for both builds. Both scripts now do so. The CEF binary is downloaded during the Rust build.
 - CEF message loop integration: https://chromiumembedded.github.io/cef/general_usage.html
 - CEF multi-threaded UI loop and external message pumps have different threading/CPU constraints. This prototype stays with the standard CEF event loop until we can test host-owned integration safely.
 - Avoid the unproven GPU CEF-to-wgpu welding project for production until sandbox and input support are established: https://docs.rs/welding/latest/welding/
@@ -38,6 +39,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-engine.ps1
 .\target\engine-proof\clearlane_engine.exe --url=https://example.com/
 ```
 
-The CEF bundle utility downloads/packages significant Chromium binaries; initial setup can be large. Alternatively download the `clearlane-cef-engine-proof` CI artifact.
+The PowerShell script defaults `CEF_PATH` to `%LOCALAPPDATA%/ClearLane/cef-sdk` (override with your own `CEF_PATH`). The first Rust compile downloads the matching CEF distribution; the separately installed bundle tool reuses exactly that distribution. First setup can be large. Do not remove or overwrite this cache while the build runs. Alternatively download the `clearlane-cef-engine-proof` CI artifact.
 
 No competitive speed or memory claims are made from this proof.

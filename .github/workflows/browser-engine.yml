@@ -2,7 +2,7 @@ name: Chromium Engine Proof
 
 on:
   push:
-    branches: [feat/chromium-browser-foundation]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -17,6 +17,10 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 90
+    # cef-dll-sys and the separately installed bundle-cef-app must use the same
+    # CEF distribution. Otherwise get_cef_dir() is None in the bundler.
+    env:
+      CEF_PATH: ${{ runner.temp }}/clearlane-cef
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +37,13 @@ jobs:
         run: cargo clippy --manifest-path engine/Cargo.toml --all-targets --all-features -- -D warnings
       - name: Test
         run: cargo test --manifest-path engine/Cargo.toml --all-features
+      - name: Verify shared CEF distribution
+        shell: pwsh
+        run: |
+          $binary = Join-Path $env:CEF_PATH "156.0.14/cef_windows_x86_64/libcef.dll"
+          if (-not (Test-Path -LiteralPath $binary)) {
+            throw "Missing CEF binary at $binary. cef-dll-sys and bundler must share CEF_PATH."
+          }
       - name: Create sandboxed Windows CEF bundle
         shell: pwsh
         run: |
@@ -42,6 +53,14 @@ jobs:
             bundle-cef-app clearlane_engine --release --output "../target/engine-proof"
           }
           finally { Pop-Location }
+          $bundle = Join-Path "target/engine-proof" "clearlane_engine.exe"
+          if (-not (Test-Path -LiteralPath $bundle)) {
+            throw "The CEF sandbox bootstrap executable was not bundled: $bundle"
+          }
+          $dll = Join-Path "target/engine-proof" "clearlane_engine.dll"
+          if (-not (Test-Path -LiteralPath $dll)) {
+            throw "The ClearLane CEF entrypoint DLL was not bundled: $dll"
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: clearlane-cef-engine-proof
