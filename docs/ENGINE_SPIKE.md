@@ -3,7 +3,7 @@
 ## Why this branch exists
 The two previous frontend mockups failed the product-quality goal. Their visual styling is not a foundation to keep patching. Before creating another browser shell, prove the supported CEF runtime, sandbox bundle and rendering lifecycle using the upstream cef-rs model.
 
-This proof intentionally has **no fabricated tabs, navigation toolbar or ad counters**. It creates one genuine Chromium page via CEF Views/Alloy on Windows, and uses the official Windows sandbox bootstrap. It is **not** a usable everyday browser or an approved UI design.
+This proof has **no fabricated tabs or ad counters**. It creates a genuine Chromium page via CEF Views/Alloy, with an elementary **functional** CEF Views toolbar (Back, Forward, Reload, editable HTTPS URL). This toolbar is a navigation/input verification fixture only; it is **not** the intended final ClearLane interface. The Windows build uses the official CEF sandbox bootstrap.
 
 ## Implementation boundary
 - `engine/` contains the real Chromium process/CEF runtime proof only.
@@ -22,7 +22,7 @@ This proof intentionally has **no fabricated tabs, navigation toolbar or ad coun
 
 ## Acceptance to move beyond this proof
 1. CI compiles and packages a real sandboxed executable (not merely `cargo check`).
-2. A Windows run displays **one real HTTPS site**, with functional mouse, keyboard, resizing, links, and video playback test.
+2. A Windows run displays **one real HTTPS site**, with functional mouse, keyboard, resizing, links, and video playback test. Confirm the URL field loads a different site, Back/Forward follow actual CEF history, and Reload works.
 3. Close/relaunch does not hang or leave unexpected processes.
 4. Default sandbox stays enabled; never use `--no-sandbox`, `--single-process`, or disabled site isolation to make it work.
 5. Capture logs and errors instead of restarting/rewriting blindly.
@@ -50,5 +50,10 @@ If you already set `CARGO_TARGET_DIR`, use a similarly short location or clear t
 If C1083 still occurs **after the short-path fix**, capture the first failing object path and full compiler error. Investigate MSVC parallel compilation, antivirus/file locks and temporary directories as separate hypotheses rather than arbitrarily editing CEF flags.
 
 The PowerShell script defaults `CEF_PATH` to `%LOCALAPPDATA%/ClearLane/cef-sdk` (override with your own `CEF_PATH`). The first Rust compile downloads the matching CEF distribution; the separately installed bundle tool reuses exactly that distribution. First setup can be large. Do not remove or overwrite this cache while the build runs. Alternatively download the `clearlane-cef-engine-proof` CI artifact.
+
+## Manual verification results
+
+- **2026-10-29**: user ran the locally built Windows sandbox executable and supplied a screenshot of a genuine `https://example.com/` page with page title **Example Domain**. This verifies the first HTTPS renderer path works on the user's machine. Keyboard, links, resizing, shutdown and alternate sites remain unverified until separately tested.
+- The subsequent navigation toolbar is a separate functionality checkpoint; do not interpret its compilation as a user-verified visual design or full browser.
 
 No competitive speed or memory claims are made from this proof.

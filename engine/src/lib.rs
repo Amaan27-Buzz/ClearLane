@@ -2,5 +2,8 @@
 #[cfg(target_os = "windows")]
 pub mod runtime;
 
+#[cfg(target_os = "windows")]
+mod controls;
+
 #[cfg(all(target_os = "windows", feature = "sandbox"))]
 mod bootstrap;

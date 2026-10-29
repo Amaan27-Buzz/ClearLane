@@ -1,11 +1,14 @@
 //! Minimal real Chromium/CEF vertical proof, intentionally isolated from the
 //! product UI until window ownership and integration have been validated.
 use cef::*;
+
+use crate::controls;
 use std::{cell::RefCell, path::PathBuf};
 
 wrap_window_delegate! {
     struct ProofWindow {
         browser_view: RefCell<Option<BrowserView>>,
+        start_url: String,
     }
 
     impl ViewDelegate {
@@ -22,8 +25,7 @@ wrap_window_delegate! {
             let (Some(window), Some(browser_view)) = (window, view.as_ref()) else {
                 return;
             };
-            let mut child = View::from(browser_view);
-            window.add_child_view(Some(&mut child));
+            controls::attach(window, browser_view, &self.start_url);
             window.set_title(Some(&CefString::from("ClearLane — Chromium engine proof")));
             window.show();
         }
@@ -130,7 +132,7 @@ wrap_browser_process_handler! {
                 quit_message_loop();
                 return;
             }
-            let mut window_delegate = ProofWindow::new(RefCell::new(view));
+            let mut window_delegate = ProofWindow::new(RefCell::new(view), self.start_url.clone());
             window_create_top_level(Some(&mut window_delegate));
         }
     }
